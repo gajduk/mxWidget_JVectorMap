@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="JvectomapWidget.widget.JvectomapWidget" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>JvectomapWidget</name>
+    <description>The description of this widget.</description>
+    <icon />
+    <properties>
+        <property key="backgroundColor" type="string" required="false">
+            <caption>Background Color</caption>
+            <category>Appearance</category>
+            <description>The background color of the widget.</description>
+        </property>
+        <property key="mapData" type="entity" isPath="optional" allowNonPersistableEntities="true" pathType="reference">
+             <caption>MapData</caption>
+             <category>Data source</category>
+             <description>The MapData entity to use.</description>
+        </property>
+    </properties>
+</widget>
+
