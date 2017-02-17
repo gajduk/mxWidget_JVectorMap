@@ -1,14 +1,13 @@
-/*global logger*/
 /*
-    JvectomapWidget
+    MyWidget
     ========================
 
-    @file      : JvectomapWidget.js
-    @version   : 1,0
-    @author    : Andrej Gajduk
-    @date      : Mon, 06 Feb 2017 14:30:25 GMT
-    @copyright : Mansystems
-    @license   : GNU GPL
+    @file      : MyWidget.js
+    @version   : 1.0.0
+    @author    : <You>
+    @date      : 2017-02-16
+    @copyright : <Your Company> 2016
+    @license   : Apache 2
 
     Documentation
     ========================
@@ -34,24 +33,25 @@ define([
     "dojo/html",
     "dojo/_base/event",
 
-    "JvectomapWidget/lib/jquery-1.11.2",
-    //"JvectomapWidget/lib/jquery-jvectormap-2.0.3.min",
-    //"JvectomapWidget/lib/jquery-jvectormap-continents-mill",
-    //"dojo/text!JvectomapWidget/widget/ui/jquery-jvectormap-2.0.3.css",
-    "dojo/text!JvectomapWidget/widget/template/JvectomapWidget.html"
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, dojoLang, dojoText, dojoHtml, dojoEvent, _jQuery, widgetTemplate) {
+    "jVectorMapWidget/lib/jquery-1.11.2",
+    "jVectorMapWidget/lib/jquery-jvectormap-2.0.3.min",
+    "dojo/text!jVectorMapWidget/widget/template/jVectorMapWidget.html"
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, lang, dojoText, dojoHtml, dojoEvent, _jQuery, asd, widgetTemplate) {
     "use strict";
-
-    var $ = _jQuery.noConflict(true);
     
+    var $ = _jQuery.noConflict(false);//if its true, then maps will not load
+   
     // Declare widget's prototype.
-    return declare("JvectomapWidget.widget.JvectomapWidget", [ _WidgetBase, _TemplatedMixin ], {
+    return declare("jVectorMapWidget.widget.jVectorMapWidget", [ _WidgetBase, _TemplatedMixin ], {
         // _TemplatedMixin will create our dom node using this HTML template.
         templateString: widgetTemplate,
 
         // DOM elements
-        infoTextNode: null,
         mapContainer: null,
+        infoTextNode: null,
+
+        // Parameters configured in the Modeler.
+        messageString: "",
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
@@ -59,53 +59,45 @@ define([
         _alertDiv: null,
         _readOnly: false,
 
-        // Parameters configured in the Modeler.
-        backgroundColor: "",
-        mapData: "",
-        
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
-            logger.debug(this.id + ".constructor");
+            console.log(this.id + ".constructor");
             this._handles = [];
         },
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
-            logger.debug(this.id + ".postCreate");
+            var self = this;
+            console.log(this.id + ".postCreate");
 
             if (this.readOnly || this.get("disabled") || this.readonly) {
               this._readOnly = true;
             }
-            self = this;
-            $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href', 'https://www.dropbox.com/s/ygdxyomj1gbzauy/jquery-jvectormap-2.0.3.css?dl=1') );
-            $.getScript( "https://www.dropbox.com/s/fqav1tmek5n378x/jquery-mousewheel.js?dl=1", function( data, textSatus, jqxhr ) {
-                $.getScript( "https://www.dropbox.com/s/ppv3qylr10u2l7o/jquery-jvectormap-2.0.3.min.js?dl=1", function( data, textSatus, jqxhr ) {
-                    $.getScript( "http://jvectormap.com/js/jquery-jvectormap-continents-mill.js", function( data, textSatus, jqxhr ) {
-                        console.log(mapData);
-                        var data = { "AF": 10, "AN": 0, AS: 15, "EU": 30,"NA": 26,"OC":19,"SA":14};
-                        $(self.mapContainer).vectorMap({
-                            map: 'continents_mill',
-                            series: {
-                                regions: [{
-                                    values: data,
-                                    scale: ['#C8EEFF', '#0071A4'],
-                                    normalizeFunction: 'polynomial'
-                                }]
-                            },
-                            onRegionTipShow: function(e, el, code){
-                                el.html(el.html()+' (GDP - '+data[code]+')');
-                            }
-                        });
-                    });
+            $.getScript( "http://jvectormap.com/js/jquery-jvectormap-continents-mill.js", function( data, textSatus, jqxhr ) {
+                var data = { "AF": 10, "AN": 0, AS: 15, "EU": 30,"NA": 26,"OC":19,"SA":14};
+                          
+                $(self.mapContainer).vectorMap({
+                    map: 'continents_mill',
+                    series: {
+                        regions: [{
+                            values: data,
+                            scale: ['#C8EEFF', '#0071A4'],
+                            normalizeFunction: 'polynomial'
+                        }]
+                    },
+                    onRegionTipShow: function(e, el, code){
+                        el.html(el.html()+' (GDP - '+data[code]+')');
+                    }
                 });
             });
+            
             this._updateRendering();
             this._setupEvents();
         },
 
         // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function (obj, callback) {
-            logger.debug(this.id + ".update");
+            console.log(this.id + ".update");
 
             this._contextObj = obj;
             this._resetSubscriptions();
@@ -143,44 +135,66 @@ define([
 
         // Attach events to HTML dom elements
         _setupEvents: function () {
-            logger.debug(this.id + "._setupEvents");
-            
+            console.log(this.id + "._setupEvents");
+        },
+
+        _execMf: function (mf, guid, cb) {
+            console.log(this.id + "._execMf");
+            if (mf && guid) {
+                mx.ui.action(mf, {
+                    params: {
+                        applyto: "selection",
+                        guids: [guid]
+                    },
+                    callback: lang.hitch(this, function (objs) {
+                        if (cb && typeof cb === "function") {
+                            cb(objs);
+                        }
+                    }),
+                    error: function (error) {
+                        console.debug(error.description);
+                    }
+                }, this);
+            }
         },
 
         // Rerender the interface.
         _updateRendering: function (callback) {
-            logger.debug(this.id + "._updateRendering");
+            console.log(this.id + "._updateRendering");
 
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
-                dojoHtml.set(this.infoTextNode, "With context");
+
+                
+                dojoHtml.set(this.infoTextNode, this.messageString);
             } else {
-                dojoStyle.set(this.domNode, "display", "block");
-                dojoHtml.set(this.infoTextNode, "No context");
+                dojoStyle.set(this.domNode, "display", "none");
             }
 
             // Important to clear all validations!
             this._clearValidations();
 
             // The callback, coming from update, needs to be executed, to let the page know it finished rendering
-            this._executeCallback(callback);
+            this._executeCallback(callback, "_updateRendering");
         },
 
         // Handle validations.
         _handleValidation: function (validations) {
-            logger.debug(this.id + "._handleValidation");
+            console.log(this.id + "._handleValidation");
             this._clearValidations();
 
         },
 
         // Clear validations.
         _clearValidations: function () {
-            logger.debug(this.id + "._clearValidations");
+            console.log(this.id + "._clearValidations");
+            dojoConstruct.destroy(this._alertDiv);
+            this._alertDiv = null;
         },
 
         // Show an error message.
         _showError: function (message) {
-            logger.debug(this.id + "._showError");
+            console.log(this.id + "._showError");
             if (this._alertDiv !== null) {
                 dojoHtml.set(this._alertDiv, message);
                 return true;
@@ -194,58 +208,48 @@ define([
 
         // Add a validation.
         _addValidation: function (message) {
-            logger.debug(this.id + "._addValidation");
+            console.log(this.id + "._addValidation");
             this._showError(message);
-        },
-
-        _unsubscribe: function () {
-          if (this._handles) {
-              dojoArray.forEach(this._handles, function (handle) {
-                  this.unsubscribe(handle);
-              });
-              this._handles = [];
-          }
         },
 
         // Reset subscriptions.
         _resetSubscriptions: function () {
-            logger.debug(this.id + "._resetSubscriptions");
+            console.log(this.id + "._resetSubscriptions");
             // Release handles on previous object, if any.
-            this._unsubscribe();
+            this.unsubscribeAll();
 
             // When a mendix object exists create subscribtions.
             if (this._contextObj) {
-                var objectHandle = this.subscribe({
+                this.subscribe({
                     guid: this._contextObj.getGuid(),
-                    callback: dojoLang.hitch(this, function (guid) {
+                    callback: lang.hitch(this, function (guid) {
                         this._updateRendering();
                     })
                 });
 
-                var attrHandle = this.subscribe({
+                this.subscribe({
                     guid: this._contextObj.getGuid(),
                     attr: this.backgroundColor,
-                    callback: dojoLang.hitch(this, function (guid, attr, attrValue) {
+                    callback: lang.hitch(this, function (guid, attr, attrValue) {
                         this._updateRendering();
                     })
                 });
 
-                var validationHandle = this.subscribe({
+                this.subscribe({
                     guid: this._contextObj.getGuid(),
                     val: true,
-                    callback: dojoLang.hitch(this, this._handleValidation)
+                    callback: lang.hitch(this, this._handleValidation)
                 });
-
-                this._handles = [ objectHandle, attrHandle, validationHandle ];
             }
         },
 
-        _executeCallback: function (cb) {
-          if (cb && typeof cb === "function") {
-            cb();
-          }
+        _executeCallback: function (cb, from) {
+            console.log(this.id + "._executeCallback" + (from ? " from " + from : ""));
+            if (cb && typeof cb === "function") {
+                cb();
+            }
         }
     });
 });
 
-require(["JvectomapWidget/widget/JvectomapWidget"]);
+require(["jVectorMapWidget/widget/jVectorMapWidget"]);
