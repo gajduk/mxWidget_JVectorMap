@@ -26,11 +26,11 @@ var path = require("path"),
     pkg = require("./package.json"),
     currentFolder = shelljs.pwd().toString();
 
-var TEST_PATH = path.join(currentFolder, "/test/Test.mpr");
+var TEST_PATH = path.join(currentFolder, "/JVectorMapTest/JVectorMapTest.mpr");
 var WIDGET_XML = path.join(currentFolder, "/src/", pkg.name, "/", pkg.name + ".xml");
 var PACKAGE_XML = path.join(currentFolder, "/src/package.xml");
-var TEST_WIDGETS_FOLDER = path.join(currentFolder, "./test/widgets");
-var TEST_WIDGETS_DEPLOYMENT_FOLDER = path.join(currentFolder, "./test/deployment/web/widgets");
+var TEST_WIDGETS_FOLDER = path.join(currentFolder, "./JVectorMapTest/widgets");
+var TEST_WIDGETS_DEPLOYMENT_FOLDER = path.join(currentFolder, "./JVectorMapTest/deployment/web/widgets");
 
 /**
  * If you want to use a custom folder for the test project, make sure these are added to package.json:

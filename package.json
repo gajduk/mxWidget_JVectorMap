@@ -26,8 +26,8 @@
   },
   "generatorVersion": "2.1.0",
   "paths": {
-    "testProjectFolder": "./test/",
-    "testProjectFileName": "Test.mpr"
+    "testProjectFolder": "./JVectorMapTest/",
+    "testProjectFileName": "JVectorMapTest.mpr"
   },
   "scripts": {
     "build": "grunt build"

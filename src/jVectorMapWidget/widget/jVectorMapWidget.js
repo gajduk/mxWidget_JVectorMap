@@ -38,9 +38,9 @@ define([
     "dojo/text!jVectorMapWidget/widget/template/jVectorMapWidget.html"
 ], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, lang, dojoText, dojoHtml, dojoEvent, _jQuery, asd, widgetTemplate) {
     "use strict";
-    
+
     var $ = _jQuery.noConflict(false);//if its true, then maps will not load
-   
+
     // Declare widget's prototype.
     return declare("jVectorMapWidget.widget.jVectorMapWidget", [ _WidgetBase, _TemplatedMixin ], {
         // _TemplatedMixin will create our dom node using this HTML template.
@@ -52,12 +52,16 @@ define([
 
         // Parameters configured in the Modeler.
         messageString: "",
+        mapseriesentity: "",
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
         _contextObj: null,
         _alertDiv: null,
         _readOnly: false,
+
+        map: null,
+        values:  { "AF": 10, "AN": 0, AS: 15, "EU": 30,"NA": 26,"OC":19,"SA":14},
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
@@ -69,39 +73,41 @@ define([
         postCreate: function () {
             var self = this;
             console.log(this.id + ".postCreate");
-
+            console.log(self.mapseriesentity);
             if (this.readOnly || this.get("disabled") || this.readonly) {
               this._readOnly = true;
             }
             $.getScript( "http://jvectormap.com/js/jquery-jvectormap-continents-mill.js", function( data, textSatus, jqxhr ) {
-                var data = { "AF": 10, "AN": 0, AS: 15, "EU": 30,"NA": 26,"OC":19,"SA":14};
-                          
+
                 $(self.mapContainer).vectorMap({
                     map: 'continents_mill',
                     series: {
                         regions: [{
-                            values: data,
+                            values: self.values,
                             scale: ['#C8EEFF', '#0071A4'],
                             normalizeFunction: 'polynomial'
                         }]
                     },
                     onRegionTipShow: function(e, el, code){
-                        el.html(el.html()+' (GDP - '+data[code]+')');
+                        el.html(el.html()+' (GDP - '+self.values[code]+')');
                     }
                 });
+                self.map = $(self.mapContainer).vectorMap('get','mapObject');
+                self._updateRendering();
+                self._setupEvents();
             });
-            
-            this._updateRendering();
-            this._setupEvents();
+
         },
 
         // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function (obj, callback) {
+            var self = this;
             console.log(this.id + ".update");
 
             this._contextObj = obj;
-            this._resetSubscriptions();
-            this._updateRendering(callback); // We're passing the callback to updateRendering to be called after DOM-manipulation
+
+            self._resetSubscriptions();
+            self._updateRendering(callback);// We're passing the callback to updateRendering to be called after DOM-manipulation
         },
 
         // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
@@ -160,13 +166,31 @@ define([
 
         // Rerender the interface.
         _updateRendering: function (callback) {
+            var self = this;
             console.log(this.id + "._updateRendering");
 
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
+                if ( self.map != null ) {
+                  mx.data.get({
+                      // xpath: "//JVectorMap.MapDataPoint["+this._contextObj._guid+"=JVectorMap.DataPoint_DataSeries]",\
+                      path: "JVectorMap.DataPoint_DataSeries",
+                      guid: this._contextObj._guid,
+                      callback: function(objs) {
+                        self.values = {};
+                        for ( var i = 0 ; i < objs.length ; ++i ) {
+                            var o = objs[i];
+                            var key = o.get("RegionCode");
+                            var value = parseFloat(o.get("Value"));
+                            self.values[key] = value;
+                        }
+                        console.log(self.values);
+                        self.map.series.regions[0].setValues(self.values);
+                      }
+                  });
+                }
+                dojoHtml.set(this.infoTextNode, this._contextObj.jsonData.attributes.Name.value);
 
-                
-                dojoHtml.set(this.infoTextNode, this.messageString);
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
             }
