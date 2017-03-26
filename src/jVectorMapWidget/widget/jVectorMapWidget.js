@@ -36,11 +36,51 @@ define([
     "jVectorMapWidget/lib/jquery-1.11.2",
     "jVectorMapWidget/lib/jquery-jvectormap-2.0.3.min",
     "dojo/text!jVectorMapWidget/widget/template/jVectorMapWidget.html"
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, lang, dojoText, dojoHtml, dojoEvent, _jQuery, asd, widgetTemplate) {
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, lang, dojoText, dojoHtml, dojoEvent, _jQuery, __jVectorMap, widgetTemplate) {
     "use strict";
-
+    var maps_directory = "widgets/jVectorMapWidget/lib/maps/";
     var $ = _jQuery.noConflict(false);//if its true, then maps will not load
-
+    var maps_to_url={"North_America":"north_america",
+                            "Continents":"continents",
+                            "Africa":"africa",
+                            "Austria":"at",
+                            "Europe":"europe",
+                            "Belgium":"be",
+                            "Asia":"asia",
+                            "World":"world",
+                            "Australia":"au",
+                            "Argentina":"ar",
+                            "South_America":"south_america",
+                            "Oceania":"oceania",
+                            "China":"cn",
+                            "Italy_Regions":"it_regions",
+                            "New_York_City":"us-ny-newyork",
+                            "Chicago":"us-il-chicago",
+                            "Venezuela":"ve",
+                            "USA":"us-aea.js",
+                            "United_Kingdom":"uk_countries",
+                            "Thailand":"th",
+                            "United_Kingdom_Regions":"uk_regions",
+                            "Switzerland":"ch",
+                            "Spain":"es",
+                            "Sweden":"se",
+                            "South_Korea":"kr",
+                            "South_Africa":"za",
+                            "Russia":"ru",
+                            "Russia_Federal_Districts":"ru_fd",
+                            "Portugal":"pt",
+                            "Poland":"pl",
+                            "Norway":"no",
+                            "New_Zealand":"nz",
+                            "Netherlands":"nl",
+                            "India":"in",
+                            "Germany":"de",
+                            "France_Regions":"fr_regions",
+                            "Italy_Provinces":"it",
+                            "France_Regions_2016":"fr_regions_2016",
+                            "France_Departments":"fr",
+                            "Denmark":"dk",
+                            "Colombia":"co-"};
     // Declare widget's prototype.
     return declare("jVectorMapWidget.widget.jVectorMapWidget", [ _WidgetBase, _TemplatedMixin ], {
         // _TemplatedMixin will create our dom node using this HTML template.
@@ -53,6 +93,8 @@ define([
         // Parameters configured in the Modeler.
         messageString: "",
         mapseriesentity: "",
+        mapName: "",
+        mapType: "",
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
@@ -77,10 +119,14 @@ define([
             if (this.readOnly || this.get("disabled") || this.readonly) {
               this._readOnly = true;
             }
-            $.getScript( "http://jvectormap.com/js/jquery-jvectormap-continents-mill.js", function( data, textSatus, jqxhr ) {
+            var real_map_name = maps_to_url[self.mapName]+"-"+self.mapType;
 
+            if ( self.mapName == "Canada" )
+              real_map_name = "ca-lcc";
+            console.log(real_map_name);
+            $.getScript( maps_directory+"jquery-jvectormap-"+real_map_name+".js", function( data, textSatus, jqxhr ) {
                 $(self.mapContainer).vectorMap({
-                    map: 'continents_mill',
+                    map: real_map_name.replace("-","_"),
                     series: {
                         regions: [{
                             values: self.values,

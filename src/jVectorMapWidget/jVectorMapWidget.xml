@@ -21,5 +21,63 @@
             <category>Appearance</category>
             <description>The message visible within the widget.</description>
         </property>
+        <property key="mapType" type="enumeration" required="true" defaultValue="mill">
+            <caption>Map Type</caption>
+            <category>Core</category>
+            <description>Define the type of map to use. More details along with a list of maps can be found here http://jvectormap.com/maps/ </description>
+            <enumerationValues>
+              <enumerationValue key="mill">Miller</enumerationValue>
+              <enumerationValue key="merc">Mercator</enumerationValue>
+           </enumerationValues>
+        </property>
+        <property key="mapName" type="enumeration" required="true" defaultValue="Continents">
+            <caption>Map</caption>
+            <category>Core</category>
+            <description>Define which map to use. More details along with a list of maps can be found here http://jvectormap.com/maps/ </description>
+            <enumerationValues>
+              <enumerationValue key="North_America">North America</enumerationValue>
+              <enumerationValue key="Continents">Continents</enumerationValue>
+              <enumerationValue key="World">World</enumerationValue>
+              <enumerationValue key="Africa">Africa</enumerationValue>
+              <enumerationValue key="Austria">Austria</enumerationValue>
+              <enumerationValue key="Canada">Canada</enumerationValue>
+              <enumerationValue key="Europe">Europe</enumerationValue>
+              <enumerationValue key="Belgium">Belgium</enumerationValue>
+              <enumerationValue key="Asia">Asia</enumerationValue>
+              <enumerationValue key="Australia">Australia</enumerationValue>
+              <enumerationValue key="Argentina">Argentina</enumerationValue>
+              <enumerationValue key="South_America">South America</enumerationValue>
+              <enumerationValue key="Oceania">Oceania</enumerationValue>
+              <enumerationValue key="China">China</enumerationValue>
+              <enumerationValue key="Italy_Regions">Italy - Regions</enumerationValue>
+              <enumerationValue key="New_York_City">New York City</enumerationValue>
+              <enumerationValue key="Chicago">Chicago</enumerationValue>
+              <enumerationValue key="Venezuela">Venezuela</enumerationValue>
+              <enumerationValue key="USA">USA</enumerationValue>
+              <enumerationValue key="United_Kingdom">United Kingdom</enumerationValue>
+              <enumerationValue key="Thailand">Thailand</enumerationValue>
+              <enumerationValue key="United_Kingdom_Regions">United Kingdom - Regions</enumerationValue>
+              <enumerationValue key="Switzerland">Switzerland</enumerationValue>
+              <enumerationValue key="Spain">Spain</enumerationValue>
+              <enumerationValue key="Sweden">Sweden</enumerationValue>
+              <enumerationValue key="South_Korea">South Korea</enumerationValue>
+              <enumerationValue key="South_Africa">South Africa</enumerationValue>
+              <enumerationValue key="Russia">Russia</enumerationValue>
+              <enumerationValue key="Russia_Federal_Districts">Russia - Federal Districts</enumerationValue>
+              <enumerationValue key="Portugal">Portugal</enumerationValue>
+              <enumerationValue key="Poland">Poland</enumerationValue>
+              <enumerationValue key="Norway">Norway</enumerationValue>
+              <enumerationValue key="New_Zealand">New Zealand</enumerationValue>
+              <enumerationValue key="Netherlands">Netherlands</enumerationValue>
+              <enumerationValue key="India">India</enumerationValue>
+              <enumerationValue key="Germany">Germany</enumerationValue>
+              <enumerationValue key="France_Regions">France - Regions</enumerationValue>
+              <enumerationValue key="Italy_Provinces">Italy - Provinces</enumerationValue>
+              <enumerationValue key="France_Regions_2016">France - Regions (2016)</enumerationValue>
+              <enumerationValue key="France_Departments">France - Departments</enumerationValue>
+              <enumerationValue key="Denmark">Denmark</enumerationValue>
+              <enumerationValue key="Colombia">Colombia</enumerationValue>
+           </enumerationValues>
+        </property>
     </properties>
 </widget>
