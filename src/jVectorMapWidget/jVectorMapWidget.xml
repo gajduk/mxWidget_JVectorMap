@@ -13,13 +13,23 @@
         </property>
         <property key="mapDataPoints" type="entity" required="false" isPath="yes" pathType="reference" allowNonPersistableEntities="true">
             <caption>Map Data Points Association</caption>
-            <category>Data source</category>
+            <category>Data Source</category>
             <description>Select a one on one relation from the main entity to the entity that is the starting point of your chainable widgets.</description>
         </property>
         <property key="messageString" type="string" required="true" defaultValue="">
             <caption>Message</caption>
             <category>Appearance</category>
             <description>The message visible within the widget.</description>
+        </property>
+        <property key="tooltip" type="string" required="false" defaultValue="$Name - $Value">
+            <caption>Tooltip</caption>
+            <category>Appearance</category>
+            <description>Shown on the tooltip. Use the special values $Name, $Code and $Value on places where zou want to insert the name of the region, the code or the value. e.g. "$Name - GDP $Value".</description>
+        </property>
+        <property key="undefined_label" type="string" required="false" defaultValue="undefined">
+            <caption>Undefined Values</caption>
+            <category>Appearance</category>
+            <description>What to displaz in the tooltip for undefined values.</description>
         </property>
         <property key="mapType" type="enumeration" required="true" defaultValue="mill">
             <caption>Map Type</caption>

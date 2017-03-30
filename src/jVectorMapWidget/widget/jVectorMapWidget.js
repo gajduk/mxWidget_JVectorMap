@@ -91,8 +91,9 @@ define([
         infoTextNode: null,
 
         // Parameters configured in the Modeler.
-        messageString: "",
         mapseriesentity: "",
+        tooltip: "",
+        undefined_label: "",
         mapName: "",
         mapType: "",
 
@@ -135,7 +136,14 @@ define([
                         }]
                     },
                     onRegionTipShow: function(e, el, code){
-                        el.html(el.html()+' (GDP - '+self.values[code]+')');
+                        var tooltip = self.tooltip;
+                        tooltip = tooltip.replace("$Name",el.html());
+                        tooltip = tooltip.replace("$Code",code);
+                        var value = ""+self.values[code];
+                        if ( "undefined" === typeof self.values[code] )
+                            value = self.undefined_label;
+                        tooltip = tooltip.replace("$Value",value);
+                        el.html(tooltip);
                     }
                 });
                 self.map = $(self.mapContainer).vectorMap('get','mapObject');
@@ -174,6 +182,7 @@ define([
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function () {
           logger.debug(this.id + ".uninitialize");
+          this.map.remove();
             // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
         },
 
@@ -230,7 +239,11 @@ define([
                             var value = parseFloat(o.get("Value"));
                             self.values[key] = value;
                         }
-                        console.log(self.values);
+                        var min_ = self.safe_min(self.values);
+                        var max_ = self.safe_max(self.values);
+                        self.map.series.regions[0].clear();
+                        self.map.series.regions[0].params.min = min_;
+                        self.map.series.regions[0].params.max = max_;
                         self.map.series.regions[0].setValues(self.values);
                       }
                   });
@@ -318,7 +331,16 @@ define([
             if (cb && typeof cb === "function") {
                 cb();
             }
+        },
+
+        safe_max: function(arr) {
+            return Math.max.apply(null, Object.keys(arr).map(function(e) {return arr[e];}));
+        },
+
+        safe_min: function(arr) {
+            return Math.min.apply(null, Object.keys(arr).map(function(e) {return arr[e];}));
         }
+
     });
 });
 
