@@ -38,6 +38,12 @@ define([
     "dojo/text!jVectorMapWidget/widget/template/jVectorMapWidget.html"
 ], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoProp, dojoGeometry, dojoClass, dojoStyle, dojoConstruct, dojoArray, lang, dojoText, dojoHtml, dojoEvent, _jQuery, __jVectorMap, widgetTemplate) {
     "use strict";
+    var _debug =  function(message) {
+       if ( true ) {
+         console.log(JSON.stringify(message,null,4));
+       }
+    };
+
     var maps_directory = "widgets/jVectorMapWidget/lib/maps/";
     var $ = _jQuery.noConflict(false);//if its true, then maps will not load
     var maps_to_url={"North_America":"north_america",
@@ -96,6 +102,7 @@ define([
         undefined_label: "",
         mapName: "",
         mapType: "",
+        custom_setings: "",
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
@@ -108,15 +115,15 @@ define([
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
-            console.log(this.id + ".constructor");
+            _debug(this.id + ".constructor");
             this._handles = [];
         },
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
             var self = this;
-            console.log(this.id + ".postCreate");
-            console.log(self.mapseriesentity);
+            _debug(this.id + ".postCreate");
+            _debug(self.mapseriesentity);
             if (this.readOnly || this.get("disabled") || this.readonly) {
               this._readOnly = true;
             }
@@ -124,28 +131,35 @@ define([
 
             if ( self.mapName == "Canada" )
               real_map_name = "ca-lcc";
-            console.log(real_map_name);
+            _debug(real_map_name);
+            _debug(self.customSettings);
             $.getScript( maps_directory+"jquery-jvectormap-"+real_map_name+".js", function( data, textSatus, jqxhr ) {
-                $(self.mapContainer).vectorMap({
-                    map: real_map_name.replace("-","_"),
-                    series: {
-                        regions: [{
-                            values: self.values,
-                            scale: ['#C8EEFF', '#0071A4'],
-                            normalizeFunction: 'polynomial'
-                        }]
-                    },
-                    onRegionTipShow: function(e, el, code){
-                        var tooltip = self.tooltip;
-                        tooltip = tooltip.replace("$Name",el.html());
-                        tooltip = tooltip.replace("$Code",code);
-                        var value = ""+self.values[code];
-                        if ( "undefined" === typeof self.values[code] )
-                            value = self.undefined_label;
-                        tooltip = tooltip.replace("$Value",value);
-                        el.html(tooltip);
-                    }
-                });
+                var settings = {};
+                var temp_settings = self.customSettings.replace("$Data",JSON.stringify(self.values));
+                try {settings=JSON.parse(temp_settings);}
+                catch(err) { console.log("Custom settings malformed:"+err); }
+                if ( self.customSettings.indexOf("$Data") == -1 ) {
+                  if ( "regions" in settings ) {
+                    var regs = settings.regions;
+                    if ( regs.length == 0 ) regs.push({ values : self.value });
+                    else regs[0].values = self.values;
+                  }
+                  else {
+                    settings.regions = [ { values : self.values } ];
+                  }
+                }
+                settings.onRegionTipShow = function(e, el, code){
+                    var tooltip = self.tooltip;
+                    tooltip = tooltip.replace("$Name",el.html());
+                    tooltip = tooltip.replace("$Code",code);
+                    var value = ""+self.values[code];
+                    if ( "undefined" === typeof self.values[code] )
+                        value = self.undefined_label;
+                    tooltip = tooltip.replace("$Value",value);
+                    el.html(tooltip);
+                }
+                settings.map = real_map_name.replace("-","_");
+                $(self.mapContainer).vectorMap(settings);
                 self.map = $(self.mapContainer).vectorMap('get','mapObject');
                 self._updateRendering();
                 self._setupEvents();
@@ -156,7 +170,7 @@ define([
         // mxui.widget._WidgetBase.update is called when context is changed or initialized. Implement to re-render and / or fetch data.
         update: function (obj, callback) {
             var self = this;
-            console.log(this.id + ".update");
+            _debug(this.id + ".update");
 
             this._contextObj = obj;
 
@@ -166,29 +180,29 @@ define([
 
         // mxui.widget._WidgetBase.enable is called when the widget should enable editing. Implement to enable editing if widget is input widget.
         enable: function () {
-          logger.debug(this.id + ".enable");
+          _debug(this.id + ".enable");
         },
 
         // mxui.widget._WidgetBase.enable is called when the widget should disable editing. Implement to disable editing if widget is input widget.
         disable: function () {
-          logger.debug(this.id + ".disable");
+          _debug(this.id + ".disable");
         },
 
         // mxui.widget._WidgetBase.resize is called when the page's layout is recalculated. Implement to do sizing calculations. Prefer using CSS instead.
         resize: function (box) {
-          logger.debug(this.id + ".resize");
+          _debug(this.id + ".resize");
         },
 
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function () {
-          logger.debug(this.id + ".uninitialize");
+          _debug(this.id + ".uninitialize");
           this.map.remove();
             // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
         },
 
         // We want to stop events on a mobile device
         _stopBubblingEventOnMobile: function (e) {
-            logger.debug(this.id + "._stopBubblingEventOnMobile");
+            _debug(this.id + "._stopBubblingEventOnMobile");
             if (typeof document.ontouchstart !== "undefined") {
                 dojoEvent.stop(e);
             }
@@ -196,11 +210,11 @@ define([
 
         // Attach events to HTML dom elements
         _setupEvents: function () {
-            console.log(this.id + "._setupEvents");
+            _debug(this.id + "._setupEvents");
         },
 
         _execMf: function (mf, guid, cb) {
-            console.log(this.id + "._execMf");
+            _debug(this.id + "._execMf");
             if (mf && guid) {
                 mx.ui.action(mf, {
                     params: {
@@ -213,7 +227,7 @@ define([
                         }
                     }),
                     error: function (error) {
-                        console.debug(error.description);
+                        _debug(error.description);
                     }
                 }, this);
             }
@@ -222,7 +236,7 @@ define([
         // Rerender the interface.
         _updateRendering: function (callback) {
             var self = this;
-            console.log(this.id + "._updateRendering");
+            _debug(this.id + "._updateRendering");
 
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
@@ -241,10 +255,10 @@ define([
                         }
                         var min_ = self.safe_min(self.values);
                         var max_ = self.safe_max(self.values);
-                        self.map.series.regions[0].clear();
-                        self.map.series.regions[0].params.min = min_;
-                        self.map.series.regions[0].params.max = max_;
-                        self.map.series.regions[0].setValues(self.values);
+                        self.map.regions[0].clear();
+                        self.map.regions[0].params.min = min_;
+                        self.map.regions[0].params.max = max_;
+                        self.map.regions[0].setValues(self.values);
                       }
                   });
                 }
@@ -263,21 +277,21 @@ define([
 
         // Handle validations.
         _handleValidation: function (validations) {
-            console.log(this.id + "._handleValidation");
+            _debug(this.id + "._handleValidation");
             this._clearValidations();
 
         },
 
         // Clear validations.
         _clearValidations: function () {
-            console.log(this.id + "._clearValidations");
+            _debug(this.id + "._clearValidations");
             dojoConstruct.destroy(this._alertDiv);
             this._alertDiv = null;
         },
 
         // Show an error message.
         _showError: function (message) {
-            console.log(this.id + "._showError");
+            _debug(this.id + "._showError");
             if (this._alertDiv !== null) {
                 dojoHtml.set(this._alertDiv, message);
                 return true;
@@ -291,13 +305,13 @@ define([
 
         // Add a validation.
         _addValidation: function (message) {
-            console.log(this.id + "._addValidation");
+            _debug(this.id + "._addValidation");
             this._showError(message);
         },
 
         // Reset subscriptions.
         _resetSubscriptions: function () {
-            console.log(this.id + "._resetSubscriptions");
+            _debug(this.id + "._resetSubscriptions");
             // Release handles on previous object, if any.
             this.unsubscribeAll();
 
@@ -327,7 +341,7 @@ define([
         },
 
         _executeCallback: function (cb, from) {
-            console.log(this.id + "._executeCallback" + (from ? " from " + from : ""));
+            _debug(this.id + "._executeCallback" + (from ? " from " + from : ""));
             if (cb && typeof cb === "function") {
                 cb();
             }

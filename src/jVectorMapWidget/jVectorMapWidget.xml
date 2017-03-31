@@ -16,11 +16,13 @@
             <category>Data Source</category>
             <description>Select a one on one relation from the main entity to the entity that is the starting point of your chainable widgets.</description>
         </property>
-        <property key="messageString" type="string" required="true" defaultValue="">
-            <caption>Message</caption>
+
+        <property key="customSettings" type="string" required="false" defaultValue="{&quot;series&quot;:{&quot;regions&quot;:[ {&quot;values&quot;:$Data,&quot;scale&quot;: [&quot;#C8EEFF&quot;, &quot;#0071A4&quot;] } ]  }  }">
+            <caption>Custom settings</caption>
             <category>Appearance</category>
-            <description>The message visible within the widget.</description>
+            <description>See http://jvectormap.com/documentation/javascript-api/jvm-map/ for a complete description of possible options. onRegionTipShow will be overwritten. Any functions that you write will cause problem Use the $Data to indicate where the data should be inserted. This entire string is evaluated using JSON.parse so make sure to put double quotes everywhere.</description>
         </property>
+
         <property key="tooltip" type="string" required="false" defaultValue="$Name - $Value">
             <caption>Tooltip</caption>
             <category>Appearance</category>
@@ -29,7 +31,7 @@
         <property key="undefined_label" type="string" required="false" defaultValue="undefined">
             <caption>Undefined Values</caption>
             <category>Appearance</category>
-            <description>What to displaz in the tooltip for undefined values.</description>
+            <description>What to display in the tooltip for undefined values.</description>
         </property>
         <property key="mapType" type="enumeration" required="true" defaultValue="mill">
             <caption>Map Type</caption>
