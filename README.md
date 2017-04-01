@@ -1,4 +1,19 @@
-# Mendix Custom Widget wrapper of the JVectoMap library
+# Mendix JVectroMap Widget
+
+This widget is a wrapper for the JVectorMap library and you can use it to visualize map data, e.g. heatmaps.
+
+## Configuration
+
+The data for this widget is read from context - non-persitable object are allowed. You can use a microflow as a source for the dataview or association it is up to you. Note that the object in context needs to have some objects associated to it, so that the widget is able to retrieve the data. I personally used the following domain model, but you can use any entites you like and any names for them or the attributes since they can be configured.
+
+Region Codes are map specific, I do not have a complete list of region code, please consult the JVectorMap for that.
+You can specify almost any settings for JVectorMap you want they way you would specify them in a js file.
+
+
+## Future plans
+
+Add widht/height and onclick microflows. Please let me know if you want a specific feature.
+
 
 ## Contributing
 
