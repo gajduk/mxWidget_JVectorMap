@@ -3,24 +3,46 @@
     <name>jVectorMapWidget</name>
     <description>A wrapper for the JVectorMap javascript library.</description>
 
-    <icon />
+    <icon>
+    </icon>
 
     <properties>
-       <property key="mapSeriesEntity" type="entity" required="false" allowNonPersistableEntities="true">
-            <caption>Map Data Series</caption>
-            <category>Data Source</category>
-            <description>Container entity, referencing MapDataPoint objects.</description>
-        </property>
-        <property key="mapDataPoints" type="entity" required="false" isPath="yes" pathType="reference" allowNonPersistableEntities="true">
+        <property key="mapDataPointsAssociation" type="entity" required="false" isPath="yes" pathType="referenceSet" allowNonPersistableEntities="true">
             <caption>Map Data Points Association</caption>
             <category>Data Source</category>
-            <description>Select a one on one relation from the main entity to the entity that is the starting point of your chainable widgets.</description>
+            <description>Select a many to many relation from the mapSeriesEntity to Entity that holds actual data. Defaults to JVectorMap.DataPoint_DataSeries</description>
         </property>
-
-        <property key="customSettings" type="string" required="false" defaultValue="{&quot;series&quot;:{&quot;regions&quot;:[ {&quot;values&quot;:$Data,&quot;scale&quot;: [&quot;#C8EEFF&quot;, &quot;#0071A4&quot;] } ]  }  }">
+        <property key="valueAttribute" type="attribute" entityProperty="mapDataPointsAssociation" required="false">
+            <caption>Value attribute</caption>
+            <category>Data Source</category>
+            <description>The attribute that stores the value for each region, must be an Integer or Decimal. Defaults to Value</description>
+            <attributeTypes>
+				        <attributeType name="Integer"/>
+                <attributeType name="Float"/>
+                <attributeType name="Long"/>
+                <attributeType name="Decimal"/>
+            </attributeTypes>
+        </property>
+        <property key="codeAttribute" type="attribute" entityProperty="mapDataPointsAssociation" required="false">
+            <caption>Region code attribute</caption>
+            <category>Data Source</category>
+            <description>The attribute that stores the region code for each region, must be an  String or ENUM. Defaults to RegionCode</description>
+            <attributeTypes>
+                <attributeType name="Enum"/>
+                <attributeType name="String"/>
+            </attributeTypes>
+        </property>
+        <property key="customSettings" type="string" required="false"
+          defaultValue="{&quot;series&quot;:{&quot;regions&quot;:[ {&quot;values&quot;:&quot;Data&quot;,&quot;scale&quot;: [&quot;#C8EEFF&quot;, &quot;#0071A4&quot;] } ]  } }">
             <caption>Custom settings</caption>
             <category>Appearance</category>
-            <description>See http://jvectormap.com/documentation/javascript-api/jvm-map/ for a complete description of possible options. onRegionTipShow will be overwritten. Any functions that you write will cause problem Use the $Data to indicate where the data should be inserted. This entire string is evaluated using JSON.parse so make sure to put double quotes everywhere.</description>
+            <description>See http://jvectormap.com/documentation/javascript-api/jvm-map/ for a
+              complete description of possible options.
+              onRegionTipShow will be overwritten.
+              Any functions that you write will cause errors.
+              The actual data is always placed in series.regions[0].values.
+              This entire string is evaluated using JSON.parse,
+              so make sure to put double quotes everywhere.</description>
         </property>
 
         <property key="tooltip" type="string" required="false" defaultValue="$Name - $Value">

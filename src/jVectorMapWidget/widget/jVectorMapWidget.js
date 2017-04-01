@@ -97,7 +97,9 @@ define([
         infoTextNode: null,
 
         // Parameters configured in the Modeler.
-        mapseriesentity: "",
+        mapDataPointsAssociation: "",
+        valueAttribute: "",
+        codeAttribute: "",
         tooltip: "",
         undefined_label: "",
         mapName: "",
@@ -119,11 +121,59 @@ define([
             this._handles = [];
         },
 
+        _setIfUndefined: function(property,new_value) {
+            if ( "undefined" == typeof this[property] )
+                this[property] = value;
+        },
+
+        _createMap: function(real_map_name) {
+            var self = this;
+            _debug(self.customSettings);
+            var settings = {};
+            var temp_settings = self.customSettings;//.replace("$Data",JSON.stringify(self.values));
+            try {settings=JSON.parse(temp_settings);}
+            catch(err) { console.error("Custom settings malformed:"+err); }
+            //if ( self.customSettings.indexOf("$Data") == -1 ) {
+
+              if ( "series" in settings ) {
+                if ( "regions" in settings.series ) {
+                  var regs = settings.series.regions;
+                  if ( regs.length == 0 ) regs.push({ values : self.value });
+                  else regs[0].values = self.values;
+                }
+                else {
+                  settings.regions = [ { values : self.values } ];
+                }
+              }
+              else {
+                  settings.series = {"regions": [ { "values" : self.values } ] };
+              }
+          //  }
+            settings.onRegionTipShow = function(e, el, code){
+                var tooltip = self.tooltip;
+                tooltip = tooltip.replace("$Name",el.html());
+                tooltip = tooltip.replace("$Code",code);
+                var value = ""+self.values[code];
+                if ( "undefined" === typeof self.values[code] )
+                    value = self.undefined_label;
+                tooltip = tooltip.replace("$Value",value);
+                el.html(tooltip);
+            }
+            settings.map = real_map_name.replace("-","_");
+            $(self.mapContainer).vectorMap(settings);
+            self.map = $(self.mapContainer).vectorMap('get','mapObject');
+        },
+
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
             var self = this;
             _debug(this.id + ".postCreate");
-            _debug(self.mapseriesentity);
+            _debug(self.mapDataPointsAssociation);
+
+            self._setIfUndefined("mapDataPointsAssociation","JVectorMap.DataPoint_DataSeries");
+            self._setIfUndefined("valueAttribute","Value");
+            self._setIfUndefined("codeAttribute","RegionCode");
+
             if (this.readOnly || this.get("disabled") || this.readonly) {
               this._readOnly = true;
             }
@@ -132,37 +182,12 @@ define([
             if ( self.mapName == "Canada" )
               real_map_name = "ca-lcc";
             _debug(real_map_name);
-            _debug(self.customSettings);
+
+            //load the correct map
             $.getScript( maps_directory+"jquery-jvectormap-"+real_map_name+".js", function( data, textSatus, jqxhr ) {
-                var settings = {};
-                var temp_settings = self.customSettings.replace("$Data",JSON.stringify(self.values));
-                try {settings=JSON.parse(temp_settings);}
-                catch(err) { console.log("Custom settings malformed:"+err); }
-                if ( self.customSettings.indexOf("$Data") == -1 ) {
-                  if ( "regions" in settings ) {
-                    var regs = settings.regions;
-                    if ( regs.length == 0 ) regs.push({ values : self.value });
-                    else regs[0].values = self.values;
-                  }
-                  else {
-                    settings.regions = [ { values : self.values } ];
-                  }
-                }
-                settings.onRegionTipShow = function(e, el, code){
-                    var tooltip = self.tooltip;
-                    tooltip = tooltip.replace("$Name",el.html());
-                    tooltip = tooltip.replace("$Code",code);
-                    var value = ""+self.values[code];
-                    if ( "undefined" === typeof self.values[code] )
-                        value = self.undefined_label;
-                    tooltip = tooltip.replace("$Value",value);
-                    el.html(tooltip);
-                }
-                settings.map = real_map_name.replace("-","_");
-                $(self.mapContainer).vectorMap(settings);
-                self.map = $(self.mapContainer).vectorMap('get','mapObject');
-                self._updateRendering();
-                self._setupEvents();
+              self._createMap(real_map_name);
+              self._updateRendering();
+              self._setupEvents();
             });
 
         },
@@ -233,6 +258,42 @@ define([
             }
         },
 
+        _loadData: function(callback) {
+          var self = this;
+          mx.data.get({
+              // xpath: "//JVectorMap.MapDataPoint["+this._contextObj._guid+"=JVectorMap.DataPoint_DataSeries]",\
+              path: self.mapDataPointsAssociation.split("/").slice(0, -1).join("/"),
+              guid: this._contextObj._guid,
+              callback: function(objs) {
+                self.values = {};
+                for ( var i = 0 ; i < objs.length ; ++i ) {
+                    var o = objs[i];
+                    var key = o.get(self.codeAttribute);
+                    var value = parseFloat(o.get(self.valueAttribute));
+                    self.values[key] = value;
+                }
+                callback();
+              }
+            });
+        },
+
+
+        _redrawMap: function(max_tries,current_try) {
+          var self = this;
+          if ( self.map != null ) {
+            var min_ = self.safe_min(self.values);
+            var max_ = self.safe_max(self.values);
+            self.map.series.regions[0].clear();
+            self.map.series.regions[0].params.min = min_;
+            self.map.series.regions[0].params.max = max_;
+            self.map.series.regions[0].setValues(self.values);
+           }
+           else {
+             if ( max_tries > current_try )
+             setTimeout(function () {self._redrawMap(max_tries,current_try+1)},100);
+           }
+        },
+
         // Rerender the interface.
         _updateRendering: function (callback) {
             var self = this;
@@ -240,28 +301,9 @@ define([
 
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
-                if ( self.map != null ) {
-                  mx.data.get({
-                      // xpath: "//JVectorMap.MapDataPoint["+this._contextObj._guid+"=JVectorMap.DataPoint_DataSeries]",\
-                      path: "JVectorMap.DataPoint_DataSeries",
-                      guid: this._contextObj._guid,
-                      callback: function(objs) {
-                        self.values = {};
-                        for ( var i = 0 ; i < objs.length ; ++i ) {
-                            var o = objs[i];
-                            var key = o.get("RegionCode");
-                            var value = parseFloat(o.get("Value"));
-                            self.values[key] = value;
-                        }
-                        var min_ = self.safe_min(self.values);
-                        var max_ = self.safe_max(self.values);
-                        self.map.regions[0].clear();
-                        self.map.regions[0].params.min = min_;
-                        self.map.regions[0].params.max = max_;
-                        self.map.regions[0].setValues(self.values);
-                      }
-                  });
-                }
+                self._loadData(function () {
+                  self._redrawMap(5,0);
+                });
                 dojoHtml.set(this.infoTextNode, this._contextObj.jsonData.attributes.Name.value);
 
             } else {
