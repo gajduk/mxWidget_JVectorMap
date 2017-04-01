@@ -1,10 +1,12 @@
 # Mendix JVectroMap Widget
 
 This widget is a wrapper for the JVectorMap library and you can use it to visualize map data, e.g. heatmaps.
+For example I have used it visualize child obesity rates in my cuntry - http://gajduk.com/data_visualization/debelina/ (apologies but the text is Cyrilic).
 
-## Configuration
+## How to Configure this in the Modeler
 
-The data for this widget is read from context - non-persitable object are allowed. You can use a microflow as a source for the dataview or association it is up to you. Note that the object in context needs to have some objects associated to it, so that the widget is able to retrieve the data. I personally used the following domain model, but you can use any entites you like and any names for them or the attributes since they can be configured.
+The data for this widget is read from context - non-persitable object are allowed. You can use a microflow as a source for the dataview or association, this is up to you. 
+Note that the object in context needs to have some objects associated to it, so that the widget is able to retrieve the data. I personally used the following domain model, but you can use any entites you like and any names for them or the attributes since they can be configured.
 
 ![alt tag](https://raw.githubusercontent.com/gajduk/mxWidget_JVectorMap/master/domainmodel.JPG)
 
@@ -13,7 +15,7 @@ Important: the association has to be many-many and the MapDataSeries entity must
 Region Codes are map specific, I do not have a complete list of region code, please consult the JVectorMap for that.
 You can specify almost any settings for JVectorMap you want they way you would specify them in a js file.
 
-## I am interested can i use this in my project?
+## OK I am interested. Can i use this in my project?
 
 Before you include this in your project please have in mind that although I provide copies of the jvectormap.js library and some of the maps I do not own these products. In fact jvectormap is a licensed product and you have to acquire a license before using it in your commercial project - http://jvectormap.com/licenses-and-pricing/
 
@@ -26,7 +28,6 @@ I have only tested 6.0.1. I expect to work in all 6.something versions but haven
 ## Future plans
 
 Add widht/height and onclick microflows. Please let me know if you want a specific feature.
-
 
 ## Contributing
 
@@ -43,8 +44,4 @@ Once you clone the repository run
 ``
 npm install
 ``
-
-## Typical usage scenario
-
-This widget is still in development.
 
