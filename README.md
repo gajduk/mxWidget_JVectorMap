@@ -3,7 +3,7 @@
 This widget is a wrapper for the JVectorMap library and you can use it to visualize map data, e.g. heatmaps.
 For example I have used it visualize child obesity rates in my cuntry - http://gajduk.com/data_visualization/debelina/ (apologies but the text is Cyrilic).
 
-## How to Configure this in the Modeler
+## How to Configure this in the Modeler??
 
 The data for this widget is read from context - non-persitable object are allowed. You can use a microflow as a source for the dataview or association, this is up to you. 
 Note that the object in context needs to have some objects associated to it, so that the widget is able to retrieve the data. I personally used the following domain model, but you can use any entites you like and any names for them or the attributes since they can be configured.
@@ -21,13 +21,18 @@ Before you include this in your project please have in mind that although I prov
 
 At this stage this widget is still in beta and thus not available from the marketplace (use at your won risk). Also I have not yet decided what type of license I will use, but there will likely be licensing for commercial projects. 
 
-## What version of Mendix are we talking about here
+## I understand the risks, I still want to use this in my project.
+
+Download the ``JVectorMapTest\widgets\jVectorMapWidget.mpk file`` and put it in the widgets folder of your own Mendix project. Reload the project from disk (F4 from the Modeler) and fire free.
+
+## What version of Mendix are we talking about here??
 
 I have only tested 6.0.1. I expect to work in all 6.something versions but haven't tested it.
 
-## Future plans
+## Do you plan to add new features??
 
-Add widht/height and onclick microflows. Please let me know if you want a specific feature.
+Of course. Next on my list are to add widht/height and onclick microflows. 
+Please let me know if you want a specific feature.
 
 ## Contributing
 
