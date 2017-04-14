@@ -94,7 +94,6 @@ define([
 
         // DOM elements
         mapContainer: null,
-        infoTextNode: null,
 
         // Parameters configured in the Modeler.
         mapDataPointsAssociation: "",
@@ -105,6 +104,9 @@ define([
         mapName: "",
         mapType: "",
         custom_setings: "",
+        onselectmicroflow: "",
+        ondeselectmicroflow: "",
+        multiSelect: "",
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
@@ -114,6 +116,8 @@ define([
 
         map: null,
         values:  { "AF": 10, "AN": 0, AS: 15, "EU": 30,"NA": 26,"OC":19,"SA":14},
+        data_points: {},
+        selectedRegions: [],
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
@@ -121,11 +125,100 @@ define([
             this._handles = [];
         },
 
+        _executeMicroflow: function (mf, callback, obj) {
+            _debug(this.id + "._executeMicroflow");
+            var _params = {
+                applyto: "selection",
+                actionname: mf,
+                guids: []
+            };
+
+            if (obj === null) {
+                obj = this._data.object;
+            }
+
+            if (obj && obj.getGuid()) {
+                _params.guids = [obj.getGuid()];
+            }
+
+            var mfAction = {
+                params: _params,
+                callback: lang.hitch(this, function (obj) {
+                    if (typeof callback === "function") {
+                        callback(obj);
+                    }
+                }),
+                error: lang.hitch(this, function (error) {
+                    console.log(this.id + "._executeMicroflow error: " + error.description);
+                })
+            };
+
+            if (!mx.version || mx.version && parseInt(mx.version.split(".")[0]) < 6) {
+                mfAction.store = {
+                    caller: this.mxform
+                };
+            } else {
+                mfAction.origin = this.mxform;
+            }
+
+            mx.data.action(mfAction, this);
+        },
+
         _setIfUndefined: function(property,new_value) {
             if ( "undefined" == typeof this[property] )
                 this[property] = value;
         },
 
+        _regionSelected: function() {
+            var self = this;
+            if ( self.modyfyingSelection ) return;
+            var selectedRegions = self.map.getSelectedRegions();
+            if ( typeof selectedRegions == "undefined" ) return;
+            if ( self.selectedRegions.length > selectedRegions.length ) {
+              //something was deselected
+              var deSelectedRegion = self._array_diff(self.selectedRegions,selectedRegions);
+              self.selectedRegions = selectedRegions;
+              _debug(deSelectedRegion);
+              if (typeof deSelectedRegion == "undefined" ) return;
+
+              var obj = self.data_points[deSelectedRegion];
+              if (  ! self._not_set(self.ondeselectmicroflow) )
+                self._executeMicroflow(self.ondeselectmicroflow,null,obj);
+            }
+            else {
+                //something was selected
+                var selectedRegion = self._array_diff(selectedRegions,self.selectedRegions);
+                self.selectedRegions = selectedRegions;
+                _debug(selectedRegion);
+                if (typeof selectedRegion == "undefined" ) return;
+
+
+                if ( self.multiSelect == "no") {
+                  self.modyfyingSelection = true;
+                  self.map.clearSelectedRegions();
+                  self.map.setSelectedRegions([selectedRegion]);
+                  self.modyfyingSelection = false;
+                }
+
+                var obj = self.data_points[selectedRegion];
+                if ( ! self._not_set(self.onselectmicroflow) )
+                  self._executeMicroflow(self.onselectmicroflow,null,obj);
+            }
+
+        },
+
+        //find a single element that is in a1 but not in a2
+        _array_diff: function(a1,a2) {
+          for ( var i = 0 ; i < a1.length ; ++i )
+             if ( a2.indexOf(a1[i]) == -1 ) return a1[i];
+        },
+
+        //checks if a not-required mendix parameter is set or not
+        _not_set: function (a) {
+            return typeof a == "undefined" || a == "";
+        },
+
+        //loads and parse settings and initilize map
         _createMap: function(real_map_name) {
             var self = this;
             _debug(self.customSettings);
@@ -159,6 +252,12 @@ define([
                 tooltip = tooltip.replace("$Value",value);
                 el.html(tooltip);
             }
+            if ( ! self._not_set(self.onselectmicroflow) ) {
+              settings.regionsSelectable = true;
+              settings.onRegionSelected = function() {
+                self._regionSelected();
+              };
+            }
             settings.map = real_map_name.replace("-","_");
             $(self.mapContainer).vectorMap(settings);
             self.map = $(self.mapContainer).vectorMap('get','mapObject');
@@ -186,6 +285,8 @@ define([
             //load the correct map
             $.getScript( maps_directory+"jquery-jvectormap-"+real_map_name+".js", function( data, textSatus, jqxhr ) {
               self._createMap(real_map_name);
+
+              self.set("loaded");
               self._updateRendering();
               self._setupEvents();
             });
@@ -238,6 +339,7 @@ define([
             _debug(this.id + "._setupEvents");
         },
 
+        /*
         _execMf: function (mf, guid, cb) {
             _debug(this.id + "._execMf");
             if (mf && guid) {
@@ -257,6 +359,7 @@ define([
                 }, this);
             }
         },
+        */
 
         _loadData: function(callback) {
           var self = this;
@@ -266,11 +369,13 @@ define([
               guid: this._contextObj._guid,
               callback: function(objs) {
                 self.values = {};
+                self.data_points = {};
                 for ( var i = 0 ; i < objs.length ; ++i ) {
                     var o = objs[i];
                     var key = o.get(self.codeAttribute);
                     var value = parseFloat(o.get(self.valueAttribute));
                     self.values[key] = value;
+                    self.data_points[key] = o;
                 }
                 callback();
               }
@@ -304,8 +409,6 @@ define([
                 self._loadData(function () {
                   self._redrawMap(5,0);
                 });
-                dojoHtml.set(this.infoTextNode, this._contextObj.jsonData.attributes.Name.value);
-
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
             }

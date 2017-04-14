@@ -24,6 +24,27 @@
                 <attributeType name="Decimal"/>
             </attributeTypes>
         </property>
+        <property key="onselectmicroflow" type="microflow" required="false" entityProperty="mapDataPointsAssociation">
+            <caption>Select Microflow</caption>
+            <category>Behaviour</category>
+            <description>Microflow that is invoked when a regions is selected. An object of type Map Data Points Association is passed as a parameter.</description>
+            <returnType type="Void" />
+        </property>
+        <property key="ondeselectmicroflow" type="microflow" required="false" entityProperty="mapDataPointsAssociation">
+            <caption>Deselct Microflow</caption>
+            <category>Behaviour</category>
+            <description>Microflow that is invoked when a regions is DEselected. An object of type Map Data Points Association is passed as a parameter.</description>
+            <returnType type="Void" />
+        </property>
+        <property key="multiSelect" type="enumeration" required="true" defaultValue="no">
+            <caption>Multi select</caption>
+            <category>Behaviour</category>
+            <description>Whether to allow multiple regions to be selected at the same time.</description>
+            <enumerationValues>
+              <enumerationValue key="yes">Yes</enumerationValue>
+              <enumerationValue key="no">No</enumerationValue>
+           </enumerationValues>
+        </property>
         <property key="codeAttribute" type="attribute" entityProperty="mapDataPointsAssociation" required="false">
             <caption>Region code attribute</caption>
             <category>Data Source</category>
