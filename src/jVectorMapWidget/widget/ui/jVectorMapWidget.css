@@ -1,9 +1,14 @@
 .widgetname {
-    
+
 }
 
 .widgetname-message {
 
+}
+
+.jvectomapwidget  {
+  width : 600px;
+  height : 400px;
 }
 
 .input-group-addon {

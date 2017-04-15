@@ -13,6 +13,7 @@
             <category>Data Source</category>
             <description>Select a many to many relation from the mapSeriesEntity to Entity that holds actual data. Defaults to JVectorMap.DataPoint_DataSeries</description>
         </property>
+
         <property key="valueAttribute" type="attribute" entityProperty="mapDataPointsAssociation" required="false">
             <caption>Value attribute</caption>
             <category>Data Source</category>
@@ -24,16 +25,26 @@
                 <attributeType name="Decimal"/>
             </attributeTypes>
         </property>
-        <property key="onselectmicroflow" type="microflow" required="false" entityProperty="mapDataPointsAssociation">
+
+        <property key="selectedAttribute" type="attribute" required="false">
+            <caption>Selected attribute</caption>
+            <category>Behaviour</category>
+            <description>The attribute that stores newly (de)selected region, set when invoking the (de)select microflows.</description>
+            <attributeTypes>
+				        <attributeType name="String"/>
+                <attributeType name="Enum"/>
+            </attributeTypes>
+        </property>
+        <property key="onselectmicroflow" type="microflow" required="false">
             <caption>Select Microflow</caption>
             <category>Behaviour</category>
-            <description>Microflow that is invoked when a regions is selected. An object of type Map Data Points Association is passed as a parameter.</description>
+            <description>Microflow that is invoked when a regions is selected. The selected region is passed as the value of the `selectedAttribute` property of the context Object.</description>
             <returnType type="Void" />
         </property>
-        <property key="ondeselectmicroflow" type="microflow" required="false" entityProperty="mapDataPointsAssociation">
+        <property key="ondeselectmicroflow" type="microflow" required="false">
             <caption>Deselct Microflow</caption>
             <category>Behaviour</category>
-            <description>Microflow that is invoked when a regions is DEselected. An object of type Map Data Points Association is passed as a parameter.</description>
+            <description>Microflow that is invoked when a regions is DEselected. The DEselected region is passed as the value of the `selectedAttribute` property of the context Object.</description>
             <returnType type="Void" />
         </property>
         <property key="multiSelect" type="enumeration" required="true" defaultValue="no">

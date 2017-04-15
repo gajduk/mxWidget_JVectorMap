@@ -118,6 +118,7 @@ define([
         values:  { "AF": 10, "AN": 0, AS: 15, "EU": 30,"NA": 26,"OC":19,"SA":14},
         data_points: {},
         selectedRegions: [],
+        _currentSettings: {},
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
@@ -140,7 +141,6 @@ define([
             if (obj && obj.getGuid()) {
                 _params.guids = [obj.getGuid()];
             }
-
             var mfAction = {
                 params: _params,
                 callback: lang.hitch(this, function (obj) {
@@ -160,7 +160,6 @@ define([
             } else {
                 mfAction.origin = this.mxform;
             }
-
             mx.data.action(mfAction, this);
         },
 
@@ -177,34 +176,33 @@ define([
             if ( self.selectedRegions.length > selectedRegions.length ) {
               //something was deselected
               var deSelectedRegion = self._array_diff(self.selectedRegions,selectedRegions);
-              self.selectedRegions = selectedRegions;
-              _debug(deSelectedRegion);
-              if (typeof deSelectedRegion == "undefined" ) return;
-
-              var obj = self.data_points[deSelectedRegion];
-              if (  ! self._not_set(self.ondeselectmicroflow) )
-                self._executeMicroflow(self.ondeselectmicroflow,null,obj);
+              self._updateRuntimeAndCallMicroflow(self.ondeselectmicroflow,deSelectedRegion);
             }
             else {
                 //something was selected
                 var selectedRegion = self._array_diff(selectedRegions,self.selectedRegions);
-                self.selectedRegions = selectedRegions;
-                _debug(selectedRegion);
-                if (typeof selectedRegion == "undefined" ) return;
-
-
-                if ( self.multiSelect == "no") {
-                  self.modyfyingSelection = true;
-                  self.map.clearSelectedRegions();
-                  self.map.setSelectedRegions([selectedRegion]);
-                  self.modyfyingSelection = false;
-                }
-
-                var obj = self.data_points[selectedRegion];
-                if ( ! self._not_set(self.onselectmicroflow) )
-                  self._executeMicroflow(self.onselectmicroflow,null,obj);
+                self._updateRuntimeAndCallMicroflow(self.onselectmicroflow,selectedRegion);
             }
+            self.selectedRegions = selectedRegions;
+        },
 
+
+        _updateRuntimeAndCallMicroflow: function(microflow_name,value) {
+            var self = this;
+            if (typeof value == "undefined" ) return;
+            if ( ! self._not_set(microflow_name) ) {
+                self._contextObj.set(self.selectedAttribute,value);
+                mx.data.commit({
+                  mxobj: self._contextObj,
+                  callback: function() {
+                    _debug("object commited calling microflow");
+                    self._executeMicroflow(microflow_name,null,self._contextObj);
+                  },
+                  error: function(e) {
+                      _debug("object commit failed");
+                  }
+                });
+            }
         },
 
         //find a single element that is in a1 but not in a2
@@ -218,10 +216,8 @@ define([
             return typeof a == "undefined" || a == "";
         },
 
-        //loads and parse settings and initilize map
-        _createMap: function(real_map_name) {
+        _createSettings(real_map_name) {
             var self = this;
-            _debug(self.customSettings);
             var settings = {};
             var temp_settings = self.customSettings;//.replace("$Data",JSON.stringify(self.values));
             try {settings=JSON.parse(temp_settings);}
@@ -254,13 +250,25 @@ define([
             }
             if ( ! self._not_set(self.onselectmicroflow) ) {
               settings.regionsSelectable = true;
+              if ( self.multiSelect == "no" )
+                settings.regionsSelectableOne = true;
               settings.onRegionSelected = function() {
                 self._regionSelected();
               };
             }
             settings.map = real_map_name.replace("-","_");
-            $(self.mapContainer).vectorMap(settings);
+            self._currentSettings = settings;
+        },
+
+        //loads and parse settings and initilize map
+        _createMap: function() {
+            var self = this;
+            if ( self.map ) self.map.remove();
+            $(self.mapContainer).vectorMap(self._currentSettings);
             self.map = $(self.mapContainer).vectorMap('get','mapObject');
+            self.modyfyingSelection = true;
+            self.map.setSelectedRegions(self.selectedRegions);
+            self.modyfyingSelection = false;
         },
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
@@ -284,8 +292,8 @@ define([
 
             //load the correct map
             $.getScript( maps_directory+"jquery-jvectormap-"+real_map_name+".js", function( data, textSatus, jqxhr ) {
-              self._createMap(real_map_name);
-
+              self._createSettings(real_map_name);
+              self._createMap();
               self.set("loaded");
               self._updateRendering();
               self._setupEvents();
@@ -298,7 +306,7 @@ define([
             var self = this;
             _debug(this.id + ".update");
 
-            this._contextObj = obj;
+            self._contextObj = obj;
 
             self._resetSubscriptions();
             self._updateRendering(callback);// We're passing the callback to updateRendering to be called after DOM-manipulation
@@ -317,6 +325,10 @@ define([
         // mxui.widget._WidgetBase.resize is called when the page's layout is recalculated. Implement to do sizing calculations. Prefer using CSS instead.
         resize: function (box) {
           _debug(this.id + ".resize");
+          var self = this;
+          self.mapContainer.style.width = self.mapContainer.parentNode.clientWidth+"px";
+          self.mapContainer.style.height = self.mapContainer.parentNode.clientHeight+"px";
+          self._createMap();
         },
 
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
@@ -338,28 +350,6 @@ define([
         _setupEvents: function () {
             _debug(this.id + "._setupEvents");
         },
-
-        /*
-        _execMf: function (mf, guid, cb) {
-            _debug(this.id + "._execMf");
-            if (mf && guid) {
-                mx.ui.action(mf, {
-                    params: {
-                        applyto: "selection",
-                        guids: [guid]
-                    },
-                    callback: lang.hitch(this, function (objs) {
-                        if (cb && typeof cb === "function") {
-                            cb(objs);
-                        }
-                    }),
-                    error: function (error) {
-                        _debug(error.description);
-                    }
-                }, this);
-            }
-        },
-        */
 
         _loadData: function(callback) {
           var self = this;
