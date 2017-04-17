@@ -1,11 +1,11 @@
-# Mendix JVectroMap Widget
+# JVectorMap in Mendix
 
-This widget is a wrapper for the JVectorMap library and you can use it to visualize map data, e.g. heatmaps.
-For example I have used it visualize child obesity rates in my cuntry - http://gajduk.com/data_visualization/debelina/ (apologies but the text is Cyrilic).
+This widget is a wrapper for the JVectorMap library and you can use it to visualize map data, e.g. heatmaps; or use it as an input to select countries or states instead of the boring dropdown.
 
-## How to Configure this in the Modeler??
 
-The data for this widget is read from context - non-persitable object are allowed. You can use a microflow as a source for the dataview or association, this is up to you. 
+## How to configure this in the Modeler??
+
+The data for this widget is always read from context i.e. dataview (non-persitable entities are allowed). You can use a microflow as a source for the dataview or follow an association, this is up to you. 
 Note that the object in context needs to have some objects associated to it, so that the widget is able to retrieve the data. I personally used the following domain model, but you can use any entites you like and any names for them or the attributes since they can be configured.
 
 ![alt tag](https://raw.githubusercontent.com/gajduk/mxWidget_JVectorMap/master/domainmodel.JPG)
@@ -15,11 +15,18 @@ Important: the association has to be many-many and the MapDataSeries entity must
 Region Codes are map specific, I do not have a complete list of region code, please consult the JVectorMap for that.
 You can specify almost any settings for JVectorMap you want they way you would specify them in a js file.
 
+## How to use the de/select microflows??
+
+You need a special String attirubte in you DataSeries entity e.g. de_selectedRegion - which you can specify in the Behaviour tab.
+Then you just need to create two microflows with the context object as the only parameter. Check the test project in this repo for an example.
+
+Explanation (read at your own risk): Because of limitations by the client API, these microflows can only take as input parameter one (non-empty) object. Because some regions will not have an object associated with them, I don't have an object to send when that region is selected. Another approach would be to use Xpath contraint to select the parameters to the microflow but this does not work with non-persistant entites.
+
 ## OK I am interested. Can i use this in my project?
 
-Before you include this in your project please have in mind that although I provide copies of the jvectormap.js library and some of the maps I do not own these products. In fact jvectormap is a licensed product and you have to acquire a license before using it in your commercial project - http://jvectormap.com/licenses-and-pricing/
+Before you include this in your project please have in mind that although I provide copies of the jvectormap.js library and some of the maps **I do not own these jvectormap or any of the maps**. Jvectormap is a licensed product and you have to acquire a license before using it in your commercial project - http://jvectormap.com/licenses-and-pricing/
 
-At this stage this widget is still in beta and thus not available from the marketplace (use at your won risk). Also I have not yet decided what type of license I will use, but there will likely be licensing for commercial projects. 
+At this stage this widget is still in beta and thus not available from the marketplace (use at your won risk). When the custom widget is ready I will decide upon a licence.
 
 ## I understand the risks, I still want to use this in my project.
 
@@ -31,7 +38,7 @@ I have only tested 6.0.1. I expect to work in all 6.something versions but haven
 
 ## Do you plan to add new features??
 
-Of course. Next on my list are to add widht/height and onclick microflows. 
+Of course. Next on my list is the ability to add custom maps. 
 Please let me know if you want a specific feature.
 
 ## Contributing
