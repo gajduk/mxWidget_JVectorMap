@@ -19,7 +19,7 @@ You can specify almost any settings for JVectorMap you want as json from the mod
 You need a special String attribute in you DataSeries entity e.g. de_selectedRegion - which you can specify in the Behaviour tab.
 Then you just need to create two microflows with the context object as the only parameter. Check the test project in this repo for an example.
 
-Explanation (read at your own risk): Because of limitations by the client API, these microflows can only take as input parameter one (non-empty) object. Because some regions will not have an object associated with them, I don't have an object to send when that region is selected. Another approach would be to use Xpath constraints to select the parameters to the microflow, but this does not work with non-persistable entites.
+Explanation (read at your own risk): Because of limitations by the client API, these microflows can only take as input parameter one (non-empty) object. Because some regions will not have an object associated with them, I don't have an object to send when that region is selected. Another approach would be to use Xpath constraints to select the parameters to the microflow, but this does not work with non-persistable entites. In the end I decided to use the contet object (which is always non-empty?) and a special attribute.
 
 ## This is exactly what I was looking for. Can I use this in my project?
 
