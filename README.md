@@ -44,7 +44,7 @@ Please let me know if you want a specific feature.
 
 For more information on contributing to this repository visit [Contributing to a GitHub repository](https://world.mendix.com/display/howto50/Contributing+to+a+GitHub+repository)
 
-##Making modifications to the widget
+## Making modifications to the widget
 
 In order to make changes to the widget you need to get familiar with custom widget development for Mendix. This is a good place to start [https://docs.mendix.com/howto50/creating-a-basic-hello-world-custom-widget](https://docs.mendix.com/howto50/creating-a-basic-hello-world-custom-widget). 
 
