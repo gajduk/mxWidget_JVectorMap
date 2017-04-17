@@ -42,11 +42,11 @@ Please let me know if you want a specific feature.
 
 ## Contributing
 
-For more information on contributing to this repository visit [Contributing to a GitHub repository](https://world.mendix.com/display/howto50/Contributing+to+a+GitHub+repository)!
+For more information on contributing to this repository visit [Contributing to a GitHub repository](https://world.mendix.com/display/howto50/Contributing+to+a+GitHub+repository)
 
 ##Making modifications to the widget
 
-[In order to make changes to the widget you need to get familiar with custom widget development for Mendix. This is a good place to start https://docs.mendix.com/howto50/creating-a-basic-hello-world-custom-widget](https://docs.mendix.com/howto50/creating-a-basic-hello-world-custom-widget). 
+In order to make changes to the widget you need to get familiar with custom widget development for Mendix. This is a good place to start [https://docs.mendix.com/howto50/creating-a-basic-hello-world-custom-widget](https://docs.mendix.com/howto50/creating-a-basic-hello-world-custom-widget). 
 
 Make sure to have Node.js installed [https://nodejs.org/en/download/](https://nodejs.org/en/download/) (I have version 6.9.1 , not sure which other versions work).
 Then I suggest to install grunt (this automates building and deploying the widget while you are working on it) [https://gruntjs.com/](https://gruntjs.com/) (I have grunt-cli v1.2.0 and grunt v1.0.1).
@@ -55,5 +55,5 @@ Once you clone the repository run
 ``
 npm install
 ``
-
-this installs any node dependncies. Finally, run ``grunt build`` followed by ``grunt watch``. THis builds the latest version of the modeler and watches for any changes to the source files. You can now make changes to the widget and see them in the modeler. Note: you do not have to restart the app everytime you make changes to js or css code, just clear the browser cache and refresh ctrl+f5. When you make changes to the xml you have to restart the app.
+this installs any node dependencies. 
+Finally, run ``grunt build`` followed by ``grunt watch``. This builds the latest version of the widget and watches for any changes to the source files. You can now make changes to the widget and see them in the app. Note: you do not have to restart the app everytime you make changes to js or css code, just clear the browser cache and refresh; ctrl+f5. When you make changes to the xml you have to restart the app.
