@@ -23,7 +23,7 @@ Explanation (read at your own risk): Because of limitations by the client API, t
 
 ## This is exactly what I was looking for. Can I use this in my project?
 
-Before you include this in your project please have in mind that although I provide copies of the jvectormap.js library and some of the maps **I do not own these jvectormap or any of the maps**. Jvectormap is a licensed product and you have to acquire a license before using it in your commercial project - http://jvectormap.com/licenses-and-pricing/
+Before you include this in your project please have in mind that although I provide copies of the jvectormap.js library and some of the maps **I do not own JVectorMap or any of the maps**. Jvectormap is a licensed product and you have to acquire a license before using it in your commercial project - http://jvectormap.com/licenses-and-pricing/
 
 At this stage this widget is still in beta and thus not available from the marketplace (use at your own risk). When the custom widget is ready, I will decide upon a license.
 
