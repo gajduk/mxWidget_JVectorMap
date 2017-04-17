@@ -22,6 +22,7 @@ define([
        }
     },
 
+    //executes a microflow and passes the obj as parameter
     executeMicroflow: function (mf, callback, obj) {
         this.debug("executeMicroflow");
         var _params = {
@@ -59,6 +60,7 @@ define([
          if ( a2.indexOf(a1[i]) == -1 ) return a1[i];
     },
 
+    //safely executes a callback and logs
     executeCallback: function (cb, from) {
         this.debug("._executeCallback" + (from ? " from " + from : ""));
         if (cb && typeof cb === "function") {
@@ -78,10 +80,12 @@ define([
             object[property] = value;
     },
 
+    //a version of Array.max that works with undefined and NaN values
     safeMax: function(arr) {
         return Math.max.apply(null, Object.keys(arr).map(function(e) {return arr[e];}));
     },
 
+    //a version of Array.min that works with undefined and NaN values
     safeMin: function(arr) {
         return Math.min.apply(null, Object.keys(arr).map(function(e) {return arr[e];}));
     }

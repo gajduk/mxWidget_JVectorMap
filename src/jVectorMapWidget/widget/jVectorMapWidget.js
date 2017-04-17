@@ -45,37 +45,48 @@ define([
         mapContainer: null,
 
         // Parameters configured in the Modeler.
-        mapDataPointsAssociation: "",
-        valueAttribute: "",
-        codeAttribute: "",
-        tooltip: "",
-        undefined_label: "",
-        mapName: "",
-        mapType: "",
-        custom_setings: "",
+        //----------------------------
+        //**aAta source**
+        mapDataPointsAssociation: "",//these entites hold the catual region data
+        valueAttribute: "",//which attribute in the entity at the end of mapDataPointsAssociation should be used as value
+        codeAttribute: "",//which attribute in the entity at the end of mapDataPointsAssociation should be used to identify the region
+
+        //**Looks
+        tooltip: "",//tooltip message
+        undefined_label: "",//if a region does not have associated data what to display
+        mapName: "",//which map to use, e.g. united_states, world
+        mapType: "",//which map type to use, i.e. Miller or Mercator
+        custom_setings: "",//settings defined in the modeler
+
+        //**Slecting and deselecting regions
         onselectmicroflow: "",
         ondeselectmicroflow: "",
         multiSelect: "",
 
-        // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
-        _contextObj: null,
-        _alertDiv: null,
 
-        _map: null,
-        values:  { "AF": 10, "AN": 0, AS: 15, "EU": 30,"NA": 26,"OC":19,"SA":14},
+        // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
+        _contextObj: null,//the widget reuires a data context
+        _alertDiv: null,//used to display a message to the user
+
+        _map: null,//the actual map object
+        values:  {},//current values
         _selectedRegions: [],
-        _currentSettings: {},
+        _currentSettings: {},//used when resizing the map to recreate it
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
             utils.debug(this.id + ".constructor");
         },
 
+        //called whenever the region has been selected or deselected
         _regionSelected: function() {
             var self = this;
+
+            //if we are doing modyfications programatically than do not handle this
             if ( self.modyfyingSelection ) return;
             var selectedRegions = self.map.getSelectedRegions();
             if ( typeof selectedRegions == "undefined" ) return;
+
             if ( self._selectedRegions.length > selectedRegions.length ) {
               //something was deselected
               var deSelectedRegion = utils.arrayDiff(self._selectedRegions,selectedRegions);
@@ -89,6 +100,7 @@ define([
             self._selectedRegions = selectedRegions;
         },
 
+        //sends the selected region "value" to Mendix and then calls the microflow_name, apssing the current context object as param
         _updateRuntimeAndCallMicroflow: function(microflow_name,value) {
             var self = this;
             if (typeof value == "undefined" ) return;
@@ -107,28 +119,28 @@ define([
             });
         },
 
+        //merges the custom defined json settings from the modeler with default settings, and adds handlers for selecting regions
         _createSettings(real_map_name) {
             var self = this;
             var settings = {};
-            var temp_settings = self.customSettings;//.replace("$Data",JSON.stringify(self.values));
+            var temp_settings = self.customSettings;
             try {settings=JSON.parse(temp_settings);}
             catch(err) { console.error("Custom settings malformed:"+err); }
-            //if ( self.customSettings.indexOf("$Data") == -1 ) {
-
-              if ( "series" in settings ) {
-                if ( "regions" in settings.series ) {
-                  var regs = settings.series.regions;
-                  if ( regs.length == 0 ) regs.push({ values : self.values });
-                  else regs[0].values = self.values;
-                }
-                else {
-                  settings.regions = [ { values : self.values } ];
-                }
+            //we need to set the vales in { series -> regions[0] -> values
+            if ( "series" in settings ) {
+              if ( "regions" in settings.series ) {
+                var regs = settings.series.regions;
+                if ( regs.length == 0 ) regs.push({ values : self.values });
+                else regs[0].values = self.values;
               }
               else {
-                  settings.series = {"regions": [ { "values" : self.values } ] };
+                settings.regions = [ { values : self.values } ];
               }
-          //  }
+            }
+            else {
+                settings.series = {"regions": [ { "values" : self.values } ] };
+            }
+            //setting the tooltip
             settings.onRegionTipShow = function(e, el, code){
                 var tooltip = self.tooltip;
                 tooltip = tooltip.replace("$Name",el.html());
@@ -139,6 +151,7 @@ define([
                 tooltip = tooltip.replace("$Value",value);
                 el.html(tooltip);
             }
+            //handling selecting and deselecting regions
             if ( ! utils.notSet(self.onselectmicroflow) ) {
               settings.regionsSelectable = true;
               if ( self.multiSelect == "no" )
@@ -151,7 +164,7 @@ define([
             self._currentSettings = settings;
         },
 
-        //loads and parse settings and initilize map
+        //creates the map with currentSettings and sets the selected regions (can be used to recreate the map)
         _createMap: function() {
             var self = this;
             if ( self.map ) self.map.remove();
@@ -162,7 +175,7 @@ define([
             self.modyfyingSelection = false;
         },
 
-        // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
+        // dijit._WidgetBase.postCreate is called after constructing the widget. Set default values here and load the map
         postCreate: function () {
             var self = this;
             utils.debug(this.id + ".postCreate");
@@ -182,7 +195,7 @@ define([
             $.getScript( maps_directory+"jquery-jvectormap-"+real_map_name+".js", function( data, textSatus, jqxhr ) {
               self._createSettings(real_map_name);
               self._createMap();
-              self.set("loaded");
+              self.set("loaded");//used by mendix
               self._updateRendering();
             });
 
@@ -202,6 +215,7 @@ define([
         // mxui.widget._WidgetBase.resize is called when the page's layout is recalculated. Implement to do sizing calculations. Prefer using CSS instead.
         resize: function (box) {
           utils.debug(this.id + ".resize");
+          //the simplest way to resize the map is to recreate it
           var self = this;
           self.mapContainer.style.width = self.mapContainer.parentNode.clientWidth+"px";
           self.mapContainer.style.height = self.mapContainer.parentNode.clientHeight+"px";
@@ -211,8 +225,8 @@ define([
         // mxui.widget._WidgetBase.uninitialize is called when the widget is destroyed. Implement to do special tear-down work.
         uninitialize: function () {
           utils.debug(this.id + ".uninitialize");
-          this.map.remove();
-            // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
+          this.map.remove();//we just remove the map
+          // Clean up listeners, helper objects, etc. There is no need to remove listeners added with this.connect / this.subscribe / this.own.
         },
 
         // We want to stop events on a mobile device
@@ -223,6 +237,7 @@ define([
             }
         },
 
+        //loads the region data from Mendix, and populates self.values
         _loadData: function(callback) {
           var self = this;
           mx.data.get({
@@ -247,7 +262,7 @@ define([
             });
         },
 
-
+        //tries to redraw the map with new values, if the map is not loaded or initialized it waits 100ms then ries again (x5)
         _redrawMap: function(max_tries,current_try) {
           var self = this;
           if ( self.map != null ) {
@@ -260,11 +275,11 @@ define([
            }
            else {
              if ( max_tries > current_try )
-             setTimeout(function () {self._redrawMap(max_tries,current_try+1)},100);
+             setTimeout(function () {self._redrawMap(max_tries,current_try+1)},(current_try+1)*200);
            }
         },
 
-        // Rerender the interface.
+        // Rerender the interface. Called when the context object has been refreshed in the client
         _updateRendering: function (callback) {
             var self = this;
             utils.debug(this.id + "._updateRendering");
@@ -272,7 +287,7 @@ define([
             if (this._contextObj !== null) {
                 dojoStyle.set(this.domNode, "display", "block");
                 self._loadData(function () {
-                  self._redrawMap(5,0);
+                  self._redrawMap(10,0);
                 });
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
@@ -282,7 +297,7 @@ define([
             utils.executeCallback(callback, "_updateRendering");
         },
 
-        // Show an error message.
+        // Show an error message. - not used right now
         _showError: function (message) {
             utils.debug(this.id + "._showError");
             if (this._alertDiv !== null) {
