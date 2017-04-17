@@ -1,6 +1,6 @@
 # JVectorMap in Mendix
 
-This widget is a wrapper for the [JVectorMap library](http://jvectormap.com/) and you can use it to visualize map data, e.g. heatmaps; or use it as an input to select countries or states instead of the boring dropdown.
+This widget is a wrapper for the [JVectorMap library](http://jvectormap.com/) and you can use it to visualize map data, e.g. heatmaps; or use it as an input element to select countries or states instead of the boring dropdown.
 
 ## How to configure this in the Modeler??
 
