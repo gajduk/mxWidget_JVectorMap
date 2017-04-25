@@ -100,6 +100,7 @@
             <category>Core</category>
             <description>Define which map to use. More details along with a list of maps can be found here http://jvectormap.com/maps/ </description>
             <enumerationValues>
+              <enumerationValue key="bike">Bike</enumerationValue>
               <enumerationValue key="North_America">North America</enumerationValue>
               <enumerationValue key="Continents">Continents</enumerationValue>
               <enumerationValue key="World">World</enumerationValue>

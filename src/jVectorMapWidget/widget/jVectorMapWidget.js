@@ -35,7 +35,7 @@ define([
 
     var maps_directory = "widgets/jVectorMapWidget/lib/maps/";
     var $ = _jQuery.noConflict(false);//if its true, then maps will not load
-    var maps_to_url={ "North_America":"north_america", "Continents":"continents", "Africa":"africa", "Austria":"at", "Europe":"europe", "Belgium":"be", "Asia":"asia", "World":"world", "Australia":"au", "Argentina":"ar", "South_America":"south_america", "Oceania":"oceania", "China":"cn", "Italy_Regions":"it_regions", "New_York_City":"us-ny-newyork", "Chicago":"us-il-chicago", "Venezuela":"ve", "USA":"us-aea.js", "United_Kingdom":"uk_countries", "Thailand":"th", "United_Kingdom_Regions":"uk_regions", "Switzerland":"ch", "Spain":"es", "Sweden":"se", "South_Korea":"kr", "South_Africa":"za", "Russia":"ru", "Russia_Federal_Districts":"ru_fd", "Portugal":"pt", "Poland":"pl", "Norway":"no", "New_Zealand":"nz", "Netherlands":"nl", "India":"in", "Germany":"de", "France_Regions":"fr_regions", "Italy_Provinces":"it", "France_Regions_2016":"fr_regions_2016", "France_Departments":"fr", "Denmark":"dk", "Colombia":"co-"};
+    var maps_to_url={ "bike":"bike", "North_America":"north_america", "Continents":"continents", "Africa":"africa", "Austria":"at", "Europe":"europe", "Belgium":"be", "Asia":"asia", "World":"world", "Australia":"au", "Argentina":"ar", "South_America":"south_america", "Oceania":"oceania", "China":"cn", "Italy_Regions":"it_regions", "New_York_City":"us-ny-newyork", "Chicago":"us-il-chicago", "Venezuela":"ve", "USA":"us-aea.js", "United_Kingdom":"uk_countries", "Thailand":"th", "United_Kingdom_Regions":"uk_regions", "Switzerland":"ch", "Spain":"es", "Sweden":"se", "South_Korea":"kr", "South_Africa":"za", "Russia":"ru", "Russia_Federal_Districts":"ru_fd", "Portugal":"pt", "Poland":"pl", "Norway":"no", "New_Zealand":"nz", "Netherlands":"nl", "India":"in", "Germany":"de", "France_Regions":"fr_regions", "Italy_Provinces":"it", "France_Regions_2016":"fr_regions_2016", "France_Departments":"fr", "Denmark":"dk", "Colombia":"co-"};
     // Declare widget's prototype.
     return declare("jVectorMapWidget.widget.jVectorMapWidget", [ _WidgetBase, _TemplatedMixin ], {
         // _TemplatedMixin will create our dom node using this HTML template.
@@ -46,7 +46,7 @@ define([
 
         // Parameters configured in the Modeler.
         //----------------------------
-        //**aAta source**
+        //**aata source**
         mapDataPointsAssociation: "",//these entites hold the catual region data
         valueAttribute: "",//which attribute in the entity at the end of mapDataPointsAssociation should be used as value
         codeAttribute: "",//which attribute in the entity at the end of mapDataPointsAssociation should be used to identify the region
@@ -170,6 +170,17 @@ define([
             if ( self.map ) self.map.remove();
             $(self.mapContainer).vectorMap(self._currentSettings);
             self.map = $(self.mapContainer).vectorMap('get','mapObject');
+
+            if ( self.mapName = "bike" ) {
+              $(self.mapContainer).find(".jvectormap-container").css("background-image",'url("https://s14.postimg.org/sodsjnq81/bike.png")');
+              $(self.mapContainer).find(".jvectormap-container").css("zoom",0.64);
+              $(self.mapContainer).find(".jvectormap-container").css("height","89.5%");
+              // this.baseScale = this.width / this.defaultWidth
+              //self.map.setFocus({ scale: 3.775 / self.map.baseScale , x: 0, y: 1 });
+              $(self.mapContainer).find(".jvectormap-container svg g").attr("transform", "scale(3.775) translate(0,-130)");
+              $(self.mapContainer).find(".jvectormap-zoomin").css("display","none");
+              $(self.mapContainer).find(".jvectormap-zoomout").css("display","none");
+            }
             self.modyfyingSelection = true;
             self.map.setSelectedRegions(self._selectedRegions);
             self.modyfyingSelection = false;
