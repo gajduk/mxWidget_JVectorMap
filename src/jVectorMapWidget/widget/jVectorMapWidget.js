@@ -100,7 +100,7 @@ define([
             self._selectedRegions = selectedRegions;
         },
 
-        //sends the selected region "value" to Mendix and then calls the microflow_name, apssing the current context object as param
+        //sends the selected region "value" to Mendix and then calls the microflow_name, passing the current context object as param
         _updateRuntimeAndCallMicroflow: function(microflow_name,value) {
             var self = this;
             if (typeof value == "undefined" ) return;
@@ -171,7 +171,8 @@ define([
             $(self.mapContainer).vectorMap(self._currentSettings);
             self.map = $(self.mapContainer).vectorMap('get','mapObject');
 
-            if ( self.mapName = "bike" ) {
+            //hack for the bike, should make this more general
+            if ( self.mapName == "bike" ) {
               $(self.mapContainer).find(".jvectormap-container").css("background-image",'url("https://s14.postimg.org/sodsjnq81/bike.png")');
               $(self.mapContainer).find(".jvectormap-container").css("zoom",0.64);
               $(self.mapContainer).find(".jvectormap-container").css("height","89.5%");
@@ -206,7 +207,7 @@ define([
             $.getScript( maps_directory+"jquery-jvectormap-"+real_map_name+".js", function( data, textSatus, jqxhr ) {
               self._createSettings(real_map_name);
               self._createMap();
-              self.set("loaded");//used by mendix
+              self.set('loaded','true');//used by mendix
               self._updateRendering();
             });
 
