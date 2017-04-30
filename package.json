@@ -26,7 +26,7 @@
   },
   "generatorVersion": "2.1.0",
   "paths": {
-    "testProjectFolder": "./JVectorMapTest/",
+    "testProjectFolder": "./JVectorMapTest_v7.2/",
     "testProjectFileName": "JVectorMapTest.mpr"
   },
   "scripts": {
