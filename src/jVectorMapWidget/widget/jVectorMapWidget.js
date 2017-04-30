@@ -34,7 +34,8 @@ define([
     "use strict";
 
     var maps_directory = "widgets/jVectorMapWidget/lib/maps/";
-    var $ = _jQuery.noConflict(false);//if its true, then maps will not load
+    var $ = _jQuery.noConflict(mx.version.substring(0,1)>6);//for Mendix versions <6 this needs to be fals otherwise the maps wont load
+    //for Mendix versions affter 7 this needs to be true otherwise jQuery doesn't load correctly
     var maps_to_url={ "North_America":"north_america", "Continents":"continents", "Africa":"africa", "Austria":"at", "Europe":"europe", "Belgium":"be", "Asia":"asia", "World":"world", "Australia":"au", "Argentina":"ar", "South_America":"south_america", "Oceania":"oceania", "China":"cn", "Italy_Regions":"it_regions", "New_York_City":"us-ny-newyork", "Chicago":"us-il-chicago", "Venezuela":"ve", "USA":"us-aea.js", "United_Kingdom":"uk_countries", "Thailand":"th", "United_Kingdom_Regions":"uk_regions", "Switzerland":"ch", "Spain":"es", "Sweden":"se", "South_Korea":"kr", "South_Africa":"za", "Russia":"ru", "Russia_Federal_Districts":"ru_fd", "Portugal":"pt", "Poland":"pl", "Norway":"no", "New_Zealand":"nz", "Netherlands":"nl", "India":"in", "Germany":"de", "France_Regions":"fr_regions", "Italy_Provinces":"it", "France_Regions_2016":"fr_regions_2016", "France_Departments":"fr", "Denmark":"dk", "Colombia":"co-"};
     // Declare widget's prototype.
     return declare("jVectorMapWidget.widget.jVectorMapWidget", [ _WidgetBase, _TemplatedMixin ], {
