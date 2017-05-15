@@ -14,10 +14,12 @@ define([
 ], function (declare, dom,  dojoStyle, dojoConstruct, lang, dojoHtml, dojoEvent) {
   "use strict";
 
+  var debug = true;
+
   return {
 
     debug:  function(message) {
-       if ( true ) {
+       if ( debug ) {
          console.log(JSON.stringify(message,null,4));
        }
     },

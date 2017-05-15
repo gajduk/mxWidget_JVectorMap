@@ -5,7 +5,7 @@
 
 // In case you seem to have trouble starting Mendix through `grunt start-mendix`, you might have to set the path to the Mendix application.
 // If it works, leave MODELER_PATH at null
-var MODELER_PATH = null;
+var MODELER_PATH = 'C:\\Program Files (x86)\\Mendix\\Version Selector\\VersionSelector.exe';
 var MODELER_ARGS = "/file:{path}";
 
 /********************************************************************************
